@@ -38,11 +38,21 @@ for testNo in range(5): # perform 5000 random tests on ProblemA
 			if not listsEquivalent(p.poly, npP[::-1]):
 				print "subtratction error!\n", p1.poly, " - ", p2.poly, " != ", p.poly, "\n"
 			
-			
-			#let's test our multiplication vs numpy polynomial module
+			# let's test our multiplication vs numpy polynomial module
 			p = p1 * p2
 			npP = numpy.polynomial.polynomial.polymul(coef1[::-1], coef2[::-1])
 			
 			if not listsEquivalent(p.poly, npP[::-1]):
 				print "multiplication error!\n", p1.poly, " * ", p2.poly, " != ", p.poly, "\n"
-
+			
+			# let's test our derivative calculator vs numpy polynomial module
+			dp2 = p2.drv() # we can just assume it works for p1
+			npdP = numpy.polynomial.polynomial.polyder(coef2[::-1])
+			
+			if not listsEquivalent(dp2.poly, npdP[::-1]):
+				print "derivation error!\n", "d of ", p2.poly, " != ", dp2.poly, "\n"
+			
+			# let's test our integral calculator vs numpy polynomial module
+			# IMPLEMENT ME
+			
+			
