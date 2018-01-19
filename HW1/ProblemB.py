@@ -24,6 +24,7 @@ def filePairs(dtree, nBytes):
                 file2.close()
         file1.close()
     return returnlist
+
 def getfiles(arg, directory, filelist): #function call from os.path.walk
     '''helper function for getting file list of dtree'''
     for i in filelist:
