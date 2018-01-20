@@ -4,7 +4,7 @@
 class polynom:
     '''polynom class with required functions'''
     def __init__(self, polyList = None):
-#        while(polyList[0] == 0):
+#        while(len(polyList) > 0 and polyList[0] == 0):
 #            polyList.pop(polyList[0])
         self.poly = polyList
     
@@ -15,7 +15,7 @@ class polynom:
             derived.append(i * mult[-i]) #flipping list at start to line up with i
         derived = derived[::-1] # flip list back
         index = 0
-#        while derived[index] == 0: #remove leading 0's
+#        while len(derived) > 0 and derived[index] == 0: #remove leading 0's
 #            derived.pop(derived[index])
         ret = polynom(derived)
         return ret
@@ -82,4 +82,4 @@ class polynom:
 #        while mult[0] == 0:
 #            mult.pop(mult[0])
         ret = polynom(mult)
-        return ret
+        return ret
