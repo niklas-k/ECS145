@@ -4,8 +4,8 @@
 class polynom:
     '''polynom class with required functions'''
     def __init__(self, polyList = None):
-#        while(len(polyList) > 0 and polyList[0] == 0):
-#            polyList.pop(polyList[0])
+        while(len(polyList) > 0 and polyList[0] == 0):
+            polyList.pop(polyList[0])
         self.poly = polyList
     
     def drv(self):
@@ -15,8 +15,8 @@ class polynom:
             derived.append(i * mult[-i]) #flipping list at start to line up with i
         derived = derived[::-1] # flip list back
         index = 0
-#        while len(derived) > 0 and derived[index] == 0: #remove leading 0's
-#            derived.pop(derived[index])
+        while len(derived) > 0 and derived[index] == 0: #remove leading 0's
+            derived.pop(derived[index])
         ret = polynom(derived)
         return ret
     
@@ -45,8 +45,8 @@ class polynom:
         for i in range(minLen + 1, maxLen+1): #while only one has a number
             added.append(longerList.poly[-i])
         added = added[::-1] #flip back
-#        while added[0] == 0: #remove leading 0's
-#            added.pop(added[0])
+        while len(added) > 0 and added[0] == 0: #remove leading 0's
+            added.pop(added[0])
         ret = polynom(added)
         return ret
     
@@ -66,8 +66,8 @@ class polynom:
             else: #subtract leading numbers if right side has higher degree
                 subtracted.append(-longerList.poly[-i])
         subtracted = subtracted[::-1]
-#        while subtracted[0] == 0:
-#            subtracted.pop(subtracted[0])
+        while len(subtracted) > 0 and subtracted[0] == 0:
+            subtracted.pop(subtracted[0])
         ret = polynom(subtracted)
         return ret
     
@@ -79,7 +79,7 @@ class polynom:
             for j in range(len(rhsRev)):
                 mult[i + j] = mult[i + j] + (selfRev[i] * rhsRev[j]) #add degrees of expressions
         mult = mult[::-1] #flip back
-#        while mult[0] == 0:
-#            mult.pop(mult[0])
+        while len(mult) > 0 and mult[0] == 0:
+            mult.pop(mult[0])
         ret = polynom(mult)
-        return ret
+        return ret
