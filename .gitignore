@@ -105,7 +105,7 @@ ENV/
 # History files
 .Rhistory
 .Rapp.history
-.Rout
+*.Rout
 
 # Session Data files
 .RData
