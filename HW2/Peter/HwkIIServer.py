@@ -14,14 +14,14 @@ def sysStart(hostList, portNum):
     
     while True: # continuously allow connections
         try:
-	    clientConn,address = serSock.accept()
+	    	clientConn,address = serSock.accept()
         except KeyboardInterrupt: # control-c
-	    try:
-		if threading.activeCount() == 1: # kill server if control-c with no active clients
-		    break
-	    except KeyboardInterrupt: # kill everything if contorl-c pressed again
-		sys.exit()
-	newClient = srvr(clientConn) # make new client thread
+	    	try:
+				if threading.activeCount() == 1: # kill server if control-c with no active clients
+		    		break
+	    	except KeyboardInterrupt: # kill everything if contorl-c pressed again
+				sys.exit()
+		newClient = srvr(clientConn) # make new client thread
         threadList.append(newClient) # add client to list
         newClient.start() # start client
     
