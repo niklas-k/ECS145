@@ -23,6 +23,12 @@ makeAscendNums <- function(x) {
     len <- length(a) + length(b)
 
     for(i in 1:len) {
+        if(length(a) == 0) {
+            return(makeAscendNums(c(merged,b)))
+        }
+        if(length(b) == 0) {
+            return(makeAscendNums(c(merged,a)))
+        }
         #finds min
         min <- min(c(min(a),min(b)))
         #if min is in both vectors remove only from a
