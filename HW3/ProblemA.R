@@ -26,22 +26,25 @@ makeAscendNums <- function(x) {
         if(length(a) == 0) {
             return(makeAscendNums(c(merged,b)))
         }
-        if(length(b) == 0) {
+        else if(length(b) == 0) {
             return(makeAscendNums(c(merged,a)))
         }
         #finds min
-        min <- min(c(min(a),min(b)))
-        #if min is in both vectors remove only from a
+        min <- min(c(a[1],b[1]))
+
+        #if min is in both vectors remove only from a and b and add duplicate
         if(min %in% a && min %in% b) {
-            a <- a[a != min]
+            a <- a[-1]
+            b <- b[-1]
+            merged <- c(merged,min)
         }
         #if min is in a
         else if(min %in% a) {
-            a <- a[a != min]
+            a <- a[-1]
         }
         #if min is in b
         else {
-            b <- b[b != min]
+            b <- b[-1]
         }
 
         merged <- c(merged, min)
@@ -52,7 +55,3 @@ makeAscendNums <- function(x) {
 '[<-.ascendNums' <- function(self, i, value) {
     stop("read-only")
 }
-
-a <- makeAscendNums(c(1,2,3,4,5))
-b <- makeAscendNums(c(7,8,9))
-print(a+b)
