@@ -1,7 +1,5 @@
 library(simmer)
 
-PT_MEAN <- 10.0         # Avg. processing time in minutes
-PT_SIGMA <- 2.0         # Sigma of processing time
 MTTF <- 300.0           # Mean time to failure in minutes
 BREAK_MEAN <- 1 / MTTF  # Param. for exponential distribution
 REPAIR_TIME <- 30.0     # Time it takes to repair a machine in minutes
