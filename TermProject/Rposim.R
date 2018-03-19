@@ -1,4 +1,5 @@
-library(bigmemory) # used to share memory between the different processes and the manager
+# used to share memory between the different processes and the manager
+library(bigmemory) # or library(Rdsm)
 
 # newsim - creates and runs a new DES simulation
 # 
@@ -10,33 +11,43 @@ library(bigmemory) # used to share memory between the different processes and th
 
 newsim <- function(processVec, endOfSim) {
     # creation of manager, which keeps track of time and waking up of each process
-    mgr <- managerInit(length(processVec), endOfSim)
+    mgr <- managerInit(processVec, endOfSim)
     
     # creation of a thread for each item in processVec and manages each process
+    # need to figure out how to use Rdsm to open new R instances that share their memory
+    # 
     
-    # link processes to the manager
-    
+        
     # now that everything is set up, we will run the simulation
+    # returns a times object, which includes all necessary analysis
     run(mgr)
 }
 
 # managerInit - 
 
-managerInit <- function(numProcesses, timeLimit) {
+managerInit <- function(processVec, timeLimit) {
     me <- list()
     
+    me$processVec <- processVec
+    me$numProcesses <- length(processVec)
+    me$curTime <- 0
+    me$maxTime <- timeLimit
     
-    
-    class(me) <- 'manager'
+    class(me) <- 'manager'    
     return(me)
 }
 
 # run - runs the simulation
 
 run <- function(mgr) {
-    cat("running simulation")
-#    while (mgr$curTime < mgr$maxTime) {
-#        
-#    }
+    results <- list()
+    
+    while (mgr$curTime < mgr$maxTime) {
+        mgr$processVec[[1]]() 
+        mgr$processVec[[2]]()
+        mgr$curTime <- mgr$curTime + 1
+    }
+    
+    class(results) <- 'times'
+    return(results)
 }
-

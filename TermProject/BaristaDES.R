@@ -28,11 +28,9 @@ source('Rposim.R')
 
 # initialize simulation variables
 maxTime <- 4000
-baristas <- c(1, 1)              # represents 2 baristas
-customers <- c(1, 1, 1, 1, 1, 1) # represents 6 customers
+baristas <- c(1, 1)              # represents 2 baristas and their initial states
+customers <- c(1, 1, 1, 1, 1, 1) # represents 6 customers and their initial states
 
-# run simulation
-newsim(c(baristaFlow(baristas), customerFlow(customers)), maxTime)
 
 
 # Flowchart to describe the process of a barista, as follows:
@@ -59,6 +57,7 @@ baristaFlow <- function(baristas) {
 		
 }
 
+
 # Flowchart to describe the process of a customer, as follows:
 #   1. Read the menu and decide
 #   2. Place coffee order
@@ -79,3 +78,8 @@ customerFlow <- function(customers) {
 		# place order                                           == adds event to queue
 		
 }
+
+# run simulation
+times <- newsim(c(baristaFlow, customerFlow), maxTime)
+
+times
