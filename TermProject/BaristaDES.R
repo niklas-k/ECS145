@@ -81,5 +81,3 @@ customerFlow <- function(customers) {
 
 # run simulation
 times <- newsim(c(baristaFlow, customerFlow), maxTime)
-
-times
