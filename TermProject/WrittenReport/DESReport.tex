@@ -77,6 +77,7 @@ DES implementations in R and Python} % Subtitle
 %----------------------------------------------------------------------------------------
 
 \tableofcontents
+\pagebreak
 \lstlistoflistings
 \pagebreak
 
@@ -141,7 +142,13 @@ The generator in an event process will, at a certain point, yield to another pro
 
 \section{Rposim Package}
 
-Rposim is short for R Process-Oriented Simulation. Its objective is to be a simple implementation of Process-Oriented DES in using the functinality of the \texttt{bigmemory} package in place of threads or generators. Through this construct one is able to simulate an environment by running multiple instances of Rposim at once. One instance will act as a manager, while subsequent instances will represent the various processes in the environment.
+\texttt{Rposim} is short for R Process-Oriented Simulation. Its objective is to be a simple implementation of Process-Oriented DES in using the functinality of the \texttt{bigmemory} package in place of threads or generators. Through this construct one is able to simulate a discrete environment by running multiple instances of R at once. One instance will act as a manager, while subsequent instances will represent the various processes in the environment.
+
+In order to get a better overview of how \texttt{Rposim} works, it is beneficial to examine the \texttt{newsim} function. This is how one would create and run a new DES simulation. Various information needs to be passed into this function, in order to tell \texttt{Rposim} how to create the manager and the psuedo-threads for the corresponding processes of the simulation.
+
+Firstly, the \texttt{newsim} function creates a new \texttt{manager} object by calling the \texttt{managerInit} constructor function. This function takes in a vector of process functions and an integer value which represents the time at the end of the simulation. Then it initializes various attributes important to the manager object, such as a vector of the processes, the number of processes, the current simulated time, the maximum simulated time, and a vector of events. These attributes are all vital for keeping track of simulated time or which event is scheduled to happen next.
+
+Once this manager is setup \texttt{newsim} creates a \texttt{bigmemory} matrix which will help coordinate the different R instances that are required in order to simulate the various processes. This is created now as it will need to be linked to the pseudo-threads as they are started. 
 
 %----------------------------------------------------------------------------------------
 
