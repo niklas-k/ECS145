@@ -141,7 +141,7 @@ getTimedEvents <- function(eventList,time) {
 run <- function(mgr) {
     results <- list()
 	# set remove condition for events to be triggered
-    removeCondition <- sapply(mgr$events, function(x) x$time == mgr$curTime)
+    removeCondition <- sapply(mgr$events, function(x) x$time != mgr$curTime)
     while (mgr$curTime < mgr$maxTime) {  
         # ...
 		triggeredEvents <- getTimedEvents(mgr$events, mgr$curTime)
