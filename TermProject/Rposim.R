@@ -79,6 +79,57 @@ makeThread <- function(process, processID, data) {
     # run the processFlow function for the particular process
 }
 
+# newEvent
+# 
+# Inputs:  time - given time, make event for that time
+#		   eventType - given event type, used when event is pulled out of list at execution time
+# Outputs: me - new event object to add to list
+# 
+# creates event object for list
+
+newEvent(time, eventType) {
+	me <- list()
+	me$time <- time
+	me$eventType <- eventType
+	class(me) <- "listEntry"
+	return(me)
+}
+
+# addEvent
+# 
+# Inputs: eventList - mgr$list, list to add new event to
+#		  time - given time, add event for that time
+#		  eventType - given event type, used when event is pulled out of list at execution time
+# 
+# Outputs: eventList - list which contains new event
+# 
+# Adds new event to event list
+
+addEvent <- function(eventList,time,eventType) {
+	newEntry <- newEvent(time,eventType)
+	eventList.append(me)
+	return(eventList)
+}
+
+# getTimedEvents
+# 
+# Inputs: eventList - mgr$list, list of all scheduled events
+#		  time - current time, check for events at time
+# 
+# Outputs: events - list of events at this time, usually only one
+# 
+# gets the events scheduled for the current time
+
+getTimedEvents <- function(eventList,time) {
+	events <- list()
+	for (i in eventList) {
+		if(i$time == time)
+			events.append(i)
+			#remove from eventList after end of function
+	}
+	return(events)
+}
+
 # run
 # 
 # Inputs: mgr - manager object which has all the neccessary attributes of the simulation
@@ -89,11 +140,16 @@ makeThread <- function(process, processID, data) {
 
 run <- function(mgr) {
     results <- list()
-    
-    while (mgr$curTime < mgr$maxTime) {
-        
+	# set remove condition for events to be triggered
+    removeCondition <- sapply(mgr$events, function(x) x$time == mgr$curTime)
+    while (mgr$curTime < mgr$maxTime) {  
         # ...
-        
+		triggeredEvents <- getTimedEvents(mgr$events, mgr$curTime)
+		mgr$events <- mgr$events[removeCondition]
+        for (i in triggeredEvents){ # loop only relevant if multiple events at same time
+			# handle event function from sim implementation as well as stats updating
+			results <- handleEvent(i$eventType, results)
+		}
         mgr$curTime <- mgr$curTime + 1
     }
     
