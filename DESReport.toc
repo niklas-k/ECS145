@@ -1,6 +1,0 @@
-\contentsline {section}{\numberline {1}Introduction: What is DES?}{4}
-\contentsline {section}{\numberline {2}Event-Oriented DES}{5}
-\contentsline {section}{\numberline {3}Process-Oriented DES}{9}
-\contentsline {section}{\numberline {4}Rposim Package}{10}
-\contentsline {section}{\numberline {5}Simmer Package}{15}
-\contentsline {section}{\numberline {6}Who did What?}{19}
