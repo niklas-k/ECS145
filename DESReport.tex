@@ -1,0 +1,190 @@
+\documentclass[a4paper, 11pt]{article} % Font size (can be 10pt, 11pt or 12pt) and paper size (remove a4paper for US letter paper)
+
+\usepackage[protrusion=true,expansion=true]{microtype} % Better typography
+\usepackage[utf8]{inputenc} % Read input files as utf8
+\usepackage{graphicx} % Required for including pictures
+\usepackage{wrapfig} % Allows in-line images
+\usepackage{listings} % Allows code listing
+\usepackage{color} % Allows for color usage
+\usepackage{float} % Allow holding images in place
+
+\usepackage{mathpazo} % Use the Palatino font
+\usepackage[T1]{fontenc} % Required for accented characters
+\linespread{1.05} % Change line spacing here, Palatino benefits from a slight increase by default
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+
+\lstdefinestyle{mystyle}{
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize,
+	breakatwhitespace=false,
+	breaklines=true,
+	captionpos=t,
+	keepspaces=true,
+	numbers=left,
+	numbersep=10pt,
+	showspaces=false,
+	showstringspaces=false,
+	showtabs=false,
+	tabsize=3
+}
+
+\lstset{style=mystyle}
+
+\makeatletter
+\renewcommand\@biblabel[1]{\textbf{#1.}} % Change the square brackets for each bibliography item from '[1]' to '1.'
+\renewcommand{\@listI}{\itemsep=0pt} % Reduce the space between items in the itemize and enumerate environments and the bibliography
+
+\renewcommand{\maketitle}{ % Customize the title - do not edit title and author name here, see the TITLE block below
+\begin{flushright} % Right align
+{\LARGE\@title} % Increase the font size of the title
+
+\vspace{30pt} % Some vertical space between the title and author name
+
+{\large\@author} % Author name
+\\\@date % Date
+
+\vspace{30pt} % Some vertical space between the author block and intro
+\end{flushright}
+}
+
+%----------------------------------------------------------------------------------------
+%	TITLE
+%----------------------------------------------------------------------------------------
+
+\title{\textbf{ECS 145 Term Project Report}\\ % Title
+DES implementations in R and Python} % Subtitle
+
+\author{\textsc{Peter Van Ausdeln, Henry Jue, Niklas Kraemer} % Author
+\\{\textit{University of California, Davis}}} % Institution
+
+\date{\today} % Date
+
+%----------------------------------------------------------------------------------------
+
+\begin{document}
+
+\maketitle % Print the title section
+\pagebreak
+
+%----------------------------------------------------------------------------------------
+%	CONTENTS AND LISTINGS
+%----------------------------------------------------------------------------------------
+
+\tableofcontents
+\pagebreak
+\lstlistoflistings
+\pagebreak
+
+%----------------------------------------------------------------------------------------
+%	ESSAY BODY
+%----------------------------------------------------------------------------------------
+
+\parskip = \baselineskip % skip lines between paragraphs
+
+
+\section{Introduction: What is DES?}
+
+Discrete Event Simulation (DES) is a way of modelling a system and the events that occur within said system. To be a valid system for DES, the events of this system must occur in distinct blocks of time. The average number of points scored by a basketball player over the course of a season would be a valid use of DES. As each game is a discrete event and each point total is a discrete number. The changes in wind speed in a certain location would, on the other hand, not be a valid use of DES as these values are continuous.
+
+To model DES with a programming language package or library, the package must have specific functionality. First, it must be able to simulate a given length of time. This will allow the package to accumulate data from the events as they occur over time. One way of doing this involves storing a time variable and a time limit variable in the class. To simulate passing time, the package increments the time variable at certain points, and ends the simulation once the time variable passes the time limit variable.
+
+The package must also be able to decide when the events occur during that time. Packages usually do this through keeping a schedule of events, often in a queue. When the simulated time of the package reaches the time that the event is scheduled to occur, the event is popped from the queue, handled, and data is gathered from it. This schedule allows the code, in some implementations, to handle the passing of time through a step function. This involves incrementing the stored current time to the time of the next event, after the previous event is completed. Since nothing is scheduled to happen between those two times, that time can be safely skipped over.
+
+The package must also have code to simulate the popped event happening, using any parameters it is given. Without the ability to specify event parameters, such as frequency and magnitude, the user has no flexibility in using the program and likely will not be able to get the data needed for analysis. The package must also be able to calculate and deliver the desired analysis to the user. In the basketball example, that might be the average and standard deviation of points scored per game. If the package can record the data, but cannot do anything productive with it, its usefulness drops.
+
+There are three main methods used to implement the skeleton of DES. These methods focus on different aspects of the DES model. They are activity-based, event-oriented, and process-oriented. In this report we will discuss the event-oriented and process-oriented methods.
+
+%----------------------------------------------------------------------------------------
+
+\section{Event-Oriented DES}
+
+Often, the simplest way of implementing DES is to make it event-oriented. Many of the possible implementations of different parts of DES discussed in the previous section are used in Event-Oriented DES. We see one full implementation of an Event-Oriented DES skeleton in the DES.R example (see code listing below). As implied by the name, Event-Oriented DES, and by extension DES.R, bases its simulation on handling each event in sequence. 
+
+One of the major aspects of Event-Oriented DES is its use of shortcuts in its simulated time-frame. It uses these shortcuts to skip to each new event that it must track. This is where the event list comes in handy. A known event is scheduled and put into the list. When this happens in the course of the simulation is left to the user. After one event finishes, the system moves to the time of the next event. Since we know that the given event is the next event to happen, we know that no events of consequence will occur in the times that we skip. Therefore, it is safe to skip those times. The skip-time algorithm works essentially as follows: \newline
+
+\begin{lstlisting}[language=Python,caption=Skip Time Algorithm]
+nextEventTime = eventQueue.front.eventTime
+if(nextEventTime < endSimTime)
+	currentSimTime = nextEventTime
+else
+	exit()
+\end{lstlisting}
+
+We see another example of this in DES.R. See the code labelled \textit{skipTime} for the exact time-skipping code in the package. Sometimes, we need extra functionality regarding the priority of different kinds of events (such as in a natural disaster simulation). In these cases, we use a priority queue instead of a simple list. DES.R specifically uses a matrix to simulate a queue.
+
+Once the Event-Oriented DES is at the next event time, it must handle the event. In many cases, this may involve multiple events, so the system must have a way of knowing which event is about to occur. DES.R makes a framework for this through its \texttt{evnttype} variable, in which each type of event is given a different identifier. As we see in the code labeled \textit{eventAdd}, this information goes into the event queue along with the event itself. It also uses a user-supplied \texttt{reactevent} as the specific event handler (as clearly the handler will need to be changed for specific uses of the library, see \textit{eventHandleReact} code section).
+
+The general algorithm for Event-Oriented DES is simple. While there's still an event scheduled to happen within the time limit, we skip to the next event and call the event handler. As opposed to Process-Oriented DES, this is much easier to implement (avoided threads) and often works faster, especially because most of the simulation time is skipped over. \newline
+
+\lstinputlisting[language=R,caption=DES.R Code]{DES.R}
+
+%----------------------------------------------------------------------------------------
+
+\section{Process-Oriented DES}
+
+Process-Oriented DES is exactly what it sounds like, a DES implementation using similar concepts to UNIX-style processes. In Process-Oriented DES, we use a process (often a thread) for each object in the simulation, as well as another one for the handling system. One might alternatively call it “Object-Oriented DES” were the term not already claimed in the programming world. For languages like R, that do not support multithreading, generally each process is a separate invocation of the language.
+
+For a single MM1 queue simulation, a Process-Oriented DES involves four different processes, one for adding to the queue, one for processing the items in the queue, one to manage the simulation, and a main thread to start them all. If there were multiple servers, each one would need its own process. Any Process-Oriented DES implementation will have to have a manager thread to keep track of the simulated time, among other things. In R, this manager thread will be the one that specifically invokes the DES library in use, while the object threads will invoke the simulation code itself.
+
+In dealing with simulated time, Process-Oriented DES works somewhat similarly to Event-Oriented DES. If the event queue is nonempty, the manager will jump to the next time, skipping uneventful time. It will then yield to whichever thread handles that event. If the event queue is empty, however, the manager will sleep until either a) it is nonempty, or b) time runs out. 
+
+The Python library \texttt{Simpy} is a famous example of Process-Oriented DES. \texttt{Simpy} has a clever way of jumping between event and manager processes, which themselves are all held in a \texttt{Simpy} \textit{environment}. To make these jumps, it assigns a generator functions (usually called Run) to each of its event threads. Generator functions are iterators that yield back values after each iteration. These are the functions that a \texttt{Simpy} program’s main process will use to activate the event processes. This happens by passing the event process’s \texttt{Run()} function as an argument to \texttt{Simpy}’s \texttt{activate()} function.
+
+The generator in an event process will, at a certain point, yield to another process for a specific amount of time. It generally does this through either a time out or by passing a number back to the manager thread via the yield. Once that time has passed, the yielded event thread will resume. \texttt{Simpy} takes advantage of a generator’s ability to yield to its calling function to get out of the event process and wake up another process. \texttt{Simpy} can also use the generator ability to return values with a yield to help deal with advancing its simulated time. Through these uses of Python generators, \texttt{Simpy} can function as a process-oriented implementation of DES.
+
+%----------------------------------------------------------------------------------------
+
+\section{Rposim Package}
+
+\texttt{Rposim} is short for R Process-Oriented Simulation. Its objective is to be a simple implementation of Process-Oriented DES in using the functinality of the \texttt{bigmemory} package in place of threads or generators. Through this construct one is able to simulate a discrete environment by running multiple instances of R at once. One instance will act as a manager, while subsequent instances will represent the various processes in the environment.
+
+In order to get a better overview of how \texttt{Rposim} works, it is beneficial to examine the \texttt{newsim} function. This is how one would create and run a new DES simulation. Various information needs to be passed into this function, in order to tell \texttt{Rposim} how to create the manager and the psuedo-threads for the corresponding processes of the simulation.
+
+Firstly, the \texttt{newsim} function creates a new \texttt{manager} object by calling the \texttt{managerInit} constructor function. This function takes in a vector of process functions and an integer value which represents the time at the end of the simulation. Then it initializes various attributes important to the manager object, such as a vector of the processes, the number of processes, the current simulated time, the maximum simulated time, and a vector of events. These attributes are all vital for keeping track of simulated time or which event is scheduled to happen next.
+
+Once this manager is setup \texttt{newsim} creates a \texttt{bigmemory} matrix which will help coordinate the different R instances that are required in order to simulate the various processes. We create this matrix now as it will need to be linked to the pseudo-threads as they are started. We start these threads within the \texttt{makeThreads} command. This function uses the \texttt{system2} command to make a new thread (in this case a new R instance) for each application process.
+
+The event queue is implemented as a list of \texttt{listEntry} objects. Each of these objects includes an event time (the time at which the event will occur) and an event type (represented by an integer). The event time, for simplicity's sake, is represented by an integer. Events are built and put into the list as they are made (via the \texttt{addEvent} function). As time passes, events whose time comes up via the main loop are taken from the list via tha \texttt{getTimedEvents} function, and then they are sent to the event handler for whatever DES implementation is using Rposim, along with the \texttt{results} object from the manager (which will have the objects and stats within altered as necessary by the handler).
+
+Since this package can only deal with time in integer values, it is very possible (even probable in some implementations) for multiple events to be scheduled for the same time. It is for this reason that the \texttt{getTimedEvents} function returns a list, and the \texttt{run} function handles the list in a loop. This way, we can deal with the currently scheduled events in the same way regardless of how many events are scheduled for the given time.
+
+Since there can be many different types of events within a DES simulation, the event type is also handled by the event handler. This also allows for greater flexibility in how each specific DES simulation is implemented with Rposim. How each type of event in a simulation is represented is up to those implementing it. Generally, a different int for each event works best, as is done in the DES.R examples.
+
+
+\lstinputlisting[language=R,caption=Rposim Code]{../Rposim.R}
+
+%----------------------------------------------------------------------------------------
+
+\section{Simmer Package}
+
+\texttt{Simmer} is another R package that has the same basic functionality as Rposim. It is also designed as a Process-Oriented DES package. It is advertised as being like \texttt{Simpy}. However, \texttt{Simpy} uses generators as the backbone of its process handling. R does not have generators, or even multithreading capability. How then does \texttt{Simmer} work as a process-oriented package? As we look through the different ways that \texttt{Simmer} makes Process-Oriented DES work, we will go over an example of the package in use, using a very similar simulation model to MachRep.R. The code will be listed at the end of this section.
+
+There are some parts of \texttt{Simmer} that work effectively in an identical manner to \texttt{Simpy}. First, \texttt{Simmer} encapsulates the entire simulation within a single environment, built by the \texttt{simmer()} function (line 12 in the example code). As we can see in the rest of the code, everything else that we build for the simulation is attached to that environment (simply named \textit{env} in the example). \texttt{Simmer} also uses a \texttt{run()} function to simulate the passing of time, accepting a number parameter to serve as the stopping point (line 35). Note that we attached this run function to the already-built \textit{env} environment, as with everything else built for the simulation. However, though there are similarities between \texttt{Simpy} and \texttt{Simmer}, there are still bound to be major differences since \texttt{Simmer} cannot exploit Python's generators and multithreading capabilities.
+
+There are a few methods that \texttt{Simmer} uses to overcome these issues in building its package. The first one is rather simple. It builds its own version of Python generators. Each generator defines the inner workings of one object in each simulation. We can see that in lines 28-29 of our sample code, each generator is hooked up to one of the machines that will be running, along with what time it will start (\texttt{at(0)}), how much monitoring will be done (\texttt{mon=2}), and the exact function that each machine will perform during the simulation (\texttt{runMach(i)}). We build one generator for each object in the loop.
+
+The \texttt{runMach} function is the meat of this simulation. It is where all the interesting stuff happens and where all the data is collected. To make these functions work, \texttt{Simmer} exploits the concept of a trajectory. A trajectory is a set of actions that are linked together into a chain, using the \%>\% functionality from the \texttt{magrittr} package, where they build off each other. By combining this chain of actions with the \texttt{rollback} function, we can both tell the machine generator what to do, and to repeat it ad nauseum until the simulated time is up. The \texttt{rollback} function takes two numbers. The first tells the trajectory how many commands to roll back, while the second one tells when to repeat that rollback. In our use (line 24), we roll back 6 lines (to the first timeout) and repeat that an infinite number of times. The rollbacks end when the simulated time is up.
+
+The trajectory also contains \texttt{Simmer}'s methods of data collection. We decide what data we want to collect in the trajectory and then record it as necessary using attributes. Specifically, we use the \texttt{set\_attribute} function. In our machine repair, we track two variables, the total up time of a machine, and the number of repairs. At the end of the program, in lines 37-40, we print out the monitored attributes, using the \texttt{get\_mon\_attributes} function. Each generator has its own copies of (and values assigned to) the used attributes. \texttt{Simmer} likes to take advantage of the \texttt{dplyr} data manipulation package to format some of its prints. \newline
+
+\lstinputlisting[language=R,caption=Simmer Excerpts from MachRep (in order of mention)]{MachRepExcerpts.R}
+\pagebreak
+
+\lstinputlisting[language=R,caption=Full Simmer MachRep Implementation]{SimmerMachRep.R}
+\pagebreak
+
+%----------------------------------------------------------------------------------------
+
+\section{Who did What?}
+
+Incomplete
+
+%----------------------------------------------------------------------------------------
+
+\end{document}
