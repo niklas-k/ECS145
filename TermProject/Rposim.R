@@ -87,7 +87,7 @@ makeThread <- function(process, processID, data) {
 # 
 # creates event object for list
 
-newEvent(time, eventType) {
+newEvent <- function(time, eventType) {
 	me <- list()
 	me$time <- time
 	me$eventType <- eventType
