@@ -148,7 +148,16 @@ In order to get a better overview of how \texttt{Rposim} works, it is beneficial
 
 Firstly, the \texttt{newsim} function creates a new \texttt{manager} object by calling the \texttt{managerInit} constructor function. This function takes in a vector of process functions and an integer value which represents the time at the end of the simulation. Then it initializes various attributes important to the manager object, such as a vector of the processes, the number of processes, the current simulated time, the maximum simulated time, and a vector of events. These attributes are all vital for keeping track of simulated time or which event is scheduled to happen next.
 
-Once this manager is setup \texttt{newsim} creates a \texttt{bigmemory} matrix which will help coordinate the different R instances that are required in order to simulate the various processes. This is created now as it will need to be linked to the pseudo-threads as they are started. 
+Once this manager is setup \texttt{newsim} creates a \texttt{bigmemory} matrix which will help coordinate the different R instances that are required in order to simulate the various processes. We create this matrix now as it will need to be linked to the pseudo-threads as they are started. We start these threads within the \texttt{makeThreads} command. This function uses the \texttt{system2} command to make a new thread (in this case a new R instance) for each application process.
+
+The event queue is implemented as a list of \texttt{listEntry} objects. Each of these objects includes an event time (the time at which the event will occur) and an event type (represented by an integer). The event time, for simplicity's sake, is represented by an integer. Events are built and put into the list as they are made (via the \texttt{addEvent} function). As time passes, events whose time comes up via the main loop are taken from the list via tha \texttt{getTimedEvents} function, and then they are sent to the event handler for whatever DES implementation is using Rposim, along with the \texttt{results} object from the manager (which will have the objects and stats within altered as necessary by the handler).
+
+Since this package can only deal with time in integer values, it is very possible (even probable in some implementations) for multiple events to be scheduled for the same time. It is for this reason that the \texttt{getTimedEvents} function returns a list, and the \texttt{run} function handles the list in a loop. This way, we can deal with the currently scheduled events in the same way regardless of how many events are scheduled for the given time.
+
+Since there can be many different types of events within a DES simulation, the event type is also handled by the event handler. This also allows for greater flexibility in how each specific DES simulation is implemented with Rposim. How each type of event in a simulation is represented is up to those implementing it. Generally, a different int for each event works best, as is done in the DES.R examples.
+
+
+\lstinputlisting[language=R,caption=Rposim Code]{../Rposim.R}
 
 %----------------------------------------------------------------------------------------
 
