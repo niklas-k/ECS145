@@ -86,7 +86,7 @@ makeThread <- function(process, processID, data) {
 
 test <- function(processID) {
     print("Start of test()")
-    for(i in 1: 100) {
+    for(i in 1: 1000) {
         cat("process #", processID)
         cat(":", i)
         cat("\n")
