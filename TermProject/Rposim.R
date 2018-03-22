@@ -68,8 +68,13 @@ managerInit <- function(processVec, endOfSim) {
 
 makeThread <- function(process, processID, data) {
     # open new instance of R
-    system2(command="xterm", args=print("R")) # is there a better way to create a new R terminal??
-    
+    #system2(command="xterm", args=print("R")) # is there a better way to create a new R terminal??
+    me <- list()   
+    me$id <- processID
+    me$data <- data
+    system2(command="R", args="--vanilla",test(), wait=F) # is there a better way to create a new R terminal??
+    class(me) <- 'thread'
+    return(me)
     # need to figure out how to call the process function in that new instance of R
     # this will hopefully be correctly linked with the bigmemory matrix
     
@@ -77,6 +82,12 @@ makeThread <- function(process, processID, data) {
     # and open the xterm with the command Rscript process_n.R where the file would
     # load Rposim.R and the implementation (such as BaristaDES.R) and then simply
     # run the processFlow function for the particular process
+}
+
+test <- function() {
+    for(i in 1: 10000) {
+        print(i)
+    }
 }
 
 # newEvent
@@ -163,7 +174,7 @@ run <- function(mgr) {
 # the process may proceed to the next step in its flowchart
 
 yield <- function() {
-    while (True) {
+    while (T) {
         # figure out how to signal from the manager that the process may proceed
         # probably easiest with a boolean variable in the shared matrix
     }
