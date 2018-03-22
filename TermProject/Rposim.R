@@ -14,7 +14,7 @@ newsim <- function(processVec, endOfSim) {
     mgr <- managerInit(processVec, endOfSim)
     
     # creates shared matrix
-    data <- big.matrix(10, 10, type='integer') # 10x10 big matrix
+    data <- big.matrix(10, 10, type='integer', shared=T) # 10x10 big matrix
     mgr$data <- data
     
     # creation of a thread for each item in processVec and manages each process
@@ -68,11 +68,10 @@ managerInit <- function(processVec, endOfSim) {
 
 makeThread <- function(process, processID, data) {
     # open new instance of R
-    #system2(command="xterm", args=print("R")) # is there a better way to create a new R terminal??
-    me <- list()   
+    me <- list()
     me$id <- processID
     me$data <- data
-    system2(command="R", args="--vanilla",test(), wait=F) # is there a better way to create a new R terminal??
+    system2(command="R", args="--vanilla", wait=F, test(processID)) # is there a better way to create a new R terminal??
     class(me) <- 'thread'
     return(me)
     # need to figure out how to call the process function in that new instance of R
@@ -84,8 +83,14 @@ makeThread <- function(process, processID, data) {
     # run the processFlow function for the particular process
 }
 
-test <- function() {
-    print(1:10000)
+
+test <- function(processID) {
+    print("Start of test()")
+    for(i in 1: 100) {
+        cat("process #", processID)
+        cat(":", i)
+        cat("\n")
+    }
 }
 
 # newEvent
@@ -106,10 +111,9 @@ newEvent <- function(time, eventType) {
 
 # addEvent
 # 
-# Inputs: eventList - mgr$list, list to add new event to
-#		  time - given time, add event for that time
-#		  eventType - given event type, used when event is pulled out of list at execution time
-# 
+# Inputs:  eventList - mgr$list, list to add new event to
+#		   time - given time, add event for that time
+#		   eventType - given event type, used when event is pulled out of list at execution time
 # Outputs: eventList - list which contains new event
 # 
 # Adds new event to event list
@@ -122,9 +126,8 @@ addEvent <- function(eventList,time,eventType) {
 
 # getTimedEvents
 # 
-# Inputs: eventList - mgr$list, list of all scheduled events
-#		  time - current time, check for events at time
-# 
+# Inputs:  eventList - mgr$list, list of all scheduled events
+#		   time - current time, check for events at time
 # Outputs: events - list of events at this time, usually only one
 # 
 # gets the events scheduled for the current time
@@ -141,8 +144,7 @@ getTimedEvents <- function(eventList,time) {
 
 # run
 # 
-# Inputs: mgr - manager object which has all the neccessary attributes of the simulation
-# 
+# Inputs:  mgr - manager object which has all the neccessary attributes of the simulation
 # Outputs: results - list which contains all of the results of the simulation
 # 
 # Runs the simulation until the maxTime is reached or there are no more events to be processed
