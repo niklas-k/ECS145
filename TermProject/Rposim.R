@@ -85,9 +85,7 @@ makeThread <- function(process, processID, data) {
 }
 
 test <- function() {
-    for(i in 1: 10000) {
-        print(i)
-    }
+    print(1:10000)
 }
 
 # newEvent
