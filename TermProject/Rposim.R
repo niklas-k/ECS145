@@ -2,24 +2,28 @@ library(bigmemory) # used to share memory between the manager and the different 
 
 # newsim
 # 
-# Inputs: processVec - vector of application specific processes
+# Inputs: processFun - vector of application specific processes
+#         processObj - vector of objects necessary for the processes, i.e. machines/repairmen
 #         endOfSim - time limit for the simulation
 #         ncols - based off the number of instances in each process, this is the max number
 #                 of cols necessary in the shared matrix
 # 
 # Creates a new manager object, links the processes to the manager, and runs the manager
 
-newsim <- function(processVec, endOfSim) {
+newsim <- function(processFun, processObj, endOfSim) {
     # creation of manager, which keeps track of time and waking up of each process
-    mgr <- managerInit(processVec, endOfSim)
+    mgr <- managerInit(processFun, endOfSim)
     
     # creates shared matrix
-    data <- big.matrix(10, 10, type='integer', shared=T) # 10x10 big matrix
+    # size based off number of processes and max number of objects in processes
+    nrows <- length(processFun)
+    ncols <- length(apply(as.matrix(processObj), 1, length))
+    data <- big.matrix(nrows, ncols, type='integer', shared=T)
     mgr$data <- data
     
-    # creation of a thread for each item in processVec and manages each process
+    # creation of a thread for each item in processFun and manages each process
     id <- 1
-    for (process in processVec) {
+    for (process in processFun) {
         makeThread(process, id, data)
         id <- id + 1
     }
@@ -31,7 +35,7 @@ newsim <- function(processVec, endOfSim) {
 
 # managerInit
 # 
-# Inputs: processVec - vector of application specific processes
+# Inputs: processFun - vector of application specific processes
 #         endOfSim - time limit for the simulation
 # 
 # Attributes: processes - vector containing all processes for the simulation, these will
@@ -44,11 +48,11 @@ newsim <- function(processVec, endOfSim) {
 # Creates a manager object which controls the simulation - i.e. keeps track of current time, 
 # max time, processes, number of processes, and the pending events in the simulation
 
-managerInit <- function(processVec, endOfSim) {
+managerInit <- function(processFun, endOfSim) {
     me <- list()
     
-    me$processes <- processVec
-    me$numProcesses <- length(processVec)
+    me$processes <- processFun
+    me$numProcesses <- length(processFun)
     me$curTime <- 0
     me$maxTime <- endOfSim
     me$events <- c()
@@ -69,28 +73,17 @@ managerInit <- function(processVec, endOfSim) {
 makeThread <- function(process, processID, data) {
     # open new instance of R
     me <- list()
+    
     me$id <- processID
     me$data <- data
-    system2(command="R", args="--vanilla", wait=F, test(processID)) # is there a better way to create a new R terminal??
-    class(me) <- 'thread'
-    return(me)
+    
+    system2(command="R", args="--vanilla", wait=F) # is there a better way to create a new R terminal??
+    
     # need to figure out how to call the process function in that new instance of R
     # this will hopefully be correctly linked with the bigmemory matrix
     
-    # one possible approach to this would be to create a .R file for each process
-    # and open the xterm with the command Rscript process_n.R where the file would
-    # load Rposim.R and the implementation (such as BaristaDES.R) and then simply
-    # run the processFlow function for the particular process
-}
-
-
-test <- function(processID) {
-    print("Start of test()")
-    for(i in 1: 1000) {
-        cat("process #", processID)
-        cat(":", i)
-        cat("\n")
-    }
+    class(me) <- 'thread'
+    return(me)
 }
 
 # newEvent

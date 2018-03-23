@@ -1,19 +1,17 @@
 # This is a sample application of Rposim's Process-Oriented DES
 # 
-# These are just the functions that need to be defined by the user
-# in order to actually run the simulation, one must run three instances
-# of R, one as the manager, a second as the baristas, and the third
-# as the customers. This is the case as they need to be actively
-# listening and interacting with the manager throughout the simulation
+# These are just the functions that need to be defined by the user. Rposim
+# will automatically set up the three necessary instances of R to successfully
+# run the simulation. One instance will act as the manager, while a second
+# and third will act as the baristas and the customers, respectively.
+# This is the case as the processes need to be actively listening and
+# interacting with the manager throughout the simulation.
 # 
 # Instructions for running simulation:
 #   1. Open a new terminal window and invoke R
-#   2. Load Rposim.R and BaristaDES.R
-#   3. Call the Rposim newsim function
-#      a. pass a vector of processes into newsim
-#      b. these are represented by the application specific flow functions
-#         so we are basically passing functions into newsim
-#      c. also pass a value for the time limit into newsim
+#   2. Load Rposim.R
+#   3. Load BaristaDES.R
+#      a. this file contains executable code, which will be called upon load
 #   4. This will automatically launch new R instances, calling each
 #      process function (thus setting up the listening)
 #   5. The simulation will be run
@@ -27,11 +25,16 @@ source('Rposim.R')
 # These are described in a continuous flowchart (user defined functions)
 
 # initialize simulation variables
-maxTime <- 4000
-baristas <- c(1, 1)              # represents 2 baristas and their initial states
+maxTime <- 28800 # 28,800 seconds in 8 hours, or a typical cafe opening duration
+
+baristas <- c(1, 1)              # represents 2 baristas  and their initial states
 customers <- c(1, 1, 1, 1, 1, 1) # represents 6 customers and their initial states
 
-
+# average times for the events in the barista and customer processes
+DECISION_TIME <- 120 # time it takes the customer to decide upon an order
+ORDER_TIME <- 80     # time it takes to place an order
+DRINK_PREP <- 200    # represents the amount of time the barista needs to make the drink
+MACH_CLEAN <- 45     # time it takes the barista to clean the machine
 
 # Flowchart to describe the process of a barista, as follows:
 #   1. Wait for order from customer
@@ -50,11 +53,9 @@ customers <- c(1, 1, 1, 1, 1, 1) # represents 6 customers and their initial stat
 baristaFlow <- function(baristas) {
 	# while currentTime < timeLimit
 		# barista is currently waiting for an order
-		# listen for an update from the manager aka an order
-		# maybe represented by a boolean value in shared matrix
-		# take the order and make the drink                     == adds event to queue
-		# clean the machine                                     == adds event to queue
-		
+		# yield() - listen for an update from the manager aka an order
+		# addEvent() - take the order and make the drink
+		# addEvent() - clean the machine
 }
 
 
@@ -73,11 +74,10 @@ baristaFlow <- function(baristas) {
 
 customerFlow <- function(customers) {
 	# while currentTime < timeLimit
-		# read menu and decide on an order                      == adds event to queue
-		# listen for an update from the manager
-		# place order                                           == adds event to queue
-		
+		# addEvent() - read menu and decide on an order
+		# yield() - listen for an update from the manager
+		# addEvent() - place order
 }
 
 # run simulation
-times <- newsim(c(baristaFlow, customerFlow), maxTime)
+times <- newsim(c(baristaFlow, customerFlow), c(baristas, customers), maxTime)
